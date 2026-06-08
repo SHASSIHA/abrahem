@@ -4,98 +4,133 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>مزاد ابراهيم الباشا | أقرب فرع</title>
+<title>شركة الباشا | أقرب فرع</title>
 
 <style>
 
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f8f8f8;
-  text-align:center;
-  color:#222;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
 }
 
-/* اللوجو */
+body{
+background:#f4f6f9;
+color:#222;
+text-align:center;
+}
+
+/* الهيدر الثابت */
+
+.header{
+position:sticky;
+top:0;
+z-index:999;
+background:white;
+padding:12px 0;
+box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
 .logo{
-  width:220px;
-  max-width:90%;
-  margin-top:25px;
+width:300px;
+max-width:90%;
+display:block;
+margin:auto;
+}
+
+/* المحتوى */
+
+.container{
+padding:20px 10px;
 }
 
 /* الكارد */
+
 .card{
-  background:white;
-  color:#222;
-  margin:15px;
-  padding:25px;
-  border-radius:20px;
-  box-shadow:0 4px 15px rgba(0,0,0,.08);
+background:white;
+margin:15px auto;
+padding:25px;
+border-radius:22px;
+width:min(950px,95%);
+box-shadow:0 5px 18px rgba(0,0,0,.08);
 }
 
 /* المكتب الرئيسي */
+
 .main-office{
-  border:3px solid #c9a227;
-  box-shadow:0 6px 20px rgba(201,162,39,.25);
+border:3px solid #1f3b73;
+box-shadow:0 8px 25px rgba(31,59,115,.18);
 }
 
-/* الزر الرئيسي */
+h2{
+margin-bottom:10px;
+}
+
 button{
-  width:90%;
-  padding:15px;
-  font-size:18px;
-  background:#c9a227;
-  border:none;
-  border-radius:12px;
-  color:white;
-  margin-top:20px;
-  cursor:pointer;
-  font-weight:bold;
+width:100%;
+padding:18px;
+font-size:20px;
+font-weight:bold;
+border:none;
+border-radius:14px;
+cursor:pointer;
+background:#1f3b73;
+color:white;
+transition:.3s;
 }
 
-/* الأزرار */
+button:hover{
+background:#294d93;
+}
+
 .btn{
-  display:block;
-  width:90%;
-  margin:10px auto;
-  padding:14px;
-  border-radius:12px;
-  text-decoration:none;
-  color:white;
-  font-size:16px;
-  font-weight:bold;
+display:block;
+width:100%;
+padding:14px;
+margin-top:10px;
+border-radius:12px;
+text-decoration:none;
+font-weight:bold;
+color:white;
 }
 
-/* Google Maps */
 .maps{
-  background:#1f2937;
+background:#1f3b73;
 }
 
-/* Waze */
 .waze{
-  background:#33ccff;
+background:#33ccff;
 }
 
 .badge{
-  background:#c9a227;
-  color:white;
-  padding:8px 12px;
-  border-radius:10px;
-  display:inline-block;
-  margin-bottom:10px;
-  font-size:14px;
-  font-weight:bold;
+display:inline-block;
+padding:8px 14px;
+border-radius:10px;
+margin-bottom:10px;
+font-size:14px;
+font-weight:bold;
+color:white;
+}
+
+.main-badge{
+background:#1f3b73;
 }
 
 .nearest{
-  background:#ff6a00;
+background:#d62828;
+}
+
+.distance{
+margin:12px 0;
+font-size:17px;
+color:#666;
 }
 
 footer{
-  margin-top:40px;
-  padding:20px;
-  font-size:14px;
-  color:#777;
+padding:25px;
+font-size:14px;
+color:#777;
 }
 
 </style>
@@ -103,11 +138,17 @@ footer{
 
 <body>
 
+<div class="header">
 <img src="./logo.png" class="logo">
+</div>
+
+<div class="container">
 
 <div class="card" id="locationCard">
 
-<h2>حدد موقعك حتى نوجهك لأقرب فرع عليك 📍</h2>
+<h2>📍 حدد موقعك حتى نوجهك لأقرب فرع عليك</h2>
+
+<br>
 
 <button onclick="findNearest()">
 📍 تحديد موقعي
@@ -117,121 +158,169 @@ footer{
 
 <div id="result"></div>
 
+</div>
+
 <script>
 
 const branches = [
 
-{name:"المكتب الرئيسي بغداد",lat:33.54599575074458,lng:44.392682788903535,isMain:true},
+{
+name:"المكتب الرئيسي بغداد",
+lat:33.54599575074458,
+lng:44.392682788903535,
+isMain:true
+},
 
-{name:"الباشا فرع البصرة",lat:30.4899722055262,lng:47.81148843130929},
+{
+name:"الباشا فرع البصرة",
+lat:30.4899722055262,
+lng:47.81148843130929
+},
 
-{name:"الباشا فرع بابل",lat:32.500383598402436,lng:44.418602002424485},
+{
+name:"الباشا فرع بابل",
+lat:32.500383598402436,
+lng:44.418602002424485
+},
 
-{name:"الباشا فرع كربلاء",lat:32.60975649461941,lng:44.01063895824518}
+{
+name:"الباشا فرع كربلاء",
+lat:32.60975649461941,
+lng:44.01063895824518
+}
 
 ];
 
 function distance(a,b,c,d){
- return Math.sqrt((a-c)**2 + (b-d)**2);
+return Math.sqrt((a-c)**2 + (b-d)**2);
 }
 
 function openWaze(lat,lng){
 
- window.location=`waze://?ll=${lat},${lng}&navigate=yes`;
+window.location=`waze://?ll=${lat},${lng}&navigate=yes`;
 
- setTimeout(function(){
+setTimeout(function(){
 
-   window.location=
-   `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+window.location=
+`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 
- },1500);
+},1500);
 
 }
 
 function findNearest(){
 
- if(!navigator.geolocation){
-   alert("جهازك لا يدعم الموقع");
-   return;
- }
+if(!navigator.geolocation){
 
- navigator.geolocation.getCurrentPosition(function(pos){
+alert("جهازك لا يدعم الموقع");
+return;
 
-   let lat=pos.coords.latitude;
-   let lng=pos.coords.longitude;
+}
 
-   let sorted=branches.map(function(branch){
+navigator.geolocation.getCurrentPosition(function(pos){
 
-     return{
-       ...branch,
-       dist:(distance(lat,lng,branch.lat,branch.lng)*111).toFixed(1)
-     };
+let lat=pos.coords.latitude;
+let lng=pos.coords.longitude;
 
-   });
+let sorted=branches.map(function(branch){
 
-   sorted.sort(function(a,b){
-     return a.dist-b.dist;
-   });
+return{
 
-   let nearestBranch = sorted[0];
+...branch,
 
-   let mainOffice = sorted.find(x => x.isMain);
-   let otherBranches = sorted.filter(x => !x.isMain);
+dist:(distance(
+lat,
+lng,
+branch.lat,
+branch.lng
+)*111).toFixed(1)
 
-   let finalList = [mainOffice,...otherBranches];
+};
 
-   let html="";
+});
 
-   finalList.forEach(function(branch){
+sorted.sort(function(a,b){
 
-     let badges="";
+return a.dist-b.dist;
 
-     if(branch.isMain){
-       badges += `<div class="badge">🏢 المكتب الرئيسي</div><br>`;
-     }
+});
 
-     if(branch.name === nearestBranch.name){
-       badges += `<div class="badge nearest">📍 أقرب فرع إليك</div>`;
-     }
+let nearestBranch=sorted[0];
 
-     html += `
+let mainOffice=sorted.find(x=>x.isMain);
 
-     <div class="card ${branch.isMain ? 'main-office' : ''}">
+let otherBranches=sorted.filter(x=>!x.isMain);
 
-       ${badges}
+let finalList=[mainOffice,...otherBranches];
 
-       <h2>${branch.name}</h2>
+let html="";
 
-       <p>
-       📍 يبعد عنك ${branch.dist} كم
-       </p>
+finalList.forEach(function(branch){
 
-       <a class="btn maps"
-       target="_blank"
-       href="https://www.google.com/maps/dir/?api=1&destination=${branch.lat},${branch.lng}">
-       🚗 Google Maps
-       </a>
+let badges="";
 
-       <a class="btn waze"
-       onclick="openWaze(${branch.lat},${branch.lng})">
-       🧭 فتح Waze
-       </a>
+if(branch.isMain){
 
-     </div>
+badges+=`
+<div class="badge main-badge">
+🏢 المكتب الرئيسي
+</div><br>
+`;
 
-     `;
+}
 
-   });
+if(branch.name===nearestBranch.name){
 
-   document.getElementById("result").innerHTML=html;
+badges+=`
+<div class="badge nearest">
+📍 أقرب فرع إليك
+</div>
+`;
 
-   document.getElementById("locationCard").style.display="none";
+}
 
- },function(){
+html+=`
 
-   alert("فعل الموقع من المتصفح");
+<div class="card ${branch.isMain ? 'main-office' : ''}">
 
- });
+${badges}
+
+<h2>${branch.name}</h2>
+
+<p class="distance">
+يبعد عنك ${branch.dist} كم
+</p>
+
+<a
+class="btn maps"
+target="_blank"
+href="https://www.google.com/maps/dir/?api=1&destination=${branch.lat},${branch.lng}">
+🚗 Google Maps
+</a>
+
+<a
+class="btn waze"
+onclick="openWaze(${branch.lat},${branch.lng})">
+🧭 فتح Waze
+</a>
+
+</div>
+
+`;
+
+});
+
+document.getElementById("result").innerHTML=html;
+
+document.getElementById("locationCard").style.display="none";
+
+},
+
+function(){
+
+alert("يرجى تفعيل الموقع من المتصفح");
+
+});
 
 }
 
