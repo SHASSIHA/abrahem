@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,25 +10,33 @@
 
 body{
   margin:0;
-  font-family:Arial;
-  background:white;
+  font-family:Arial,sans-serif;
+  background:#f8f8f8;
   text-align:center;
+  color:#222;
 }
 
 /* اللوجو */
 .logo{
-  width:140px;
-  margin-top:20px;
+  width:220px;
+  max-width:90%;
+  margin-top:25px;
 }
 
 /* الكارد */
 .card{
-  background:#1f2937;
-  color:white;
-  margin:20px;
+  background:white;
+  color:#222;
+  margin:15px;
   padding:25px;
   border-radius:20px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+  box-shadow:0 4px 15px rgba(0,0,0,.08);
+}
+
+/* المكتب الرئيسي */
+.main-office{
+  border:3px solid #c9a227;
+  box-shadow:0 6px 20px rgba(201,162,39,.25);
 }
 
 /* الزر الرئيسي */
@@ -36,12 +44,13 @@ button{
   width:90%;
   padding:15px;
   font-size:18px;
-  background:#ff6a00;
+  background:#c9a227;
   border:none;
   border-radius:12px;
   color:white;
   margin-top:20px;
   cursor:pointer;
+  font-weight:bold;
 }
 
 /* الأزرار */
@@ -59,7 +68,7 @@ button{
 
 /* Google Maps */
 .maps{
-  background:#374151;
+  background:#1f2937;
 }
 
 /* Waze */
@@ -67,13 +76,26 @@ button{
   background:#33ccff;
 }
 
-/* Footer */
+.badge{
+  background:#c9a227;
+  color:white;
+  padding:8px 12px;
+  border-radius:10px;
+  display:inline-block;
+  margin-bottom:10px;
+  font-size:14px;
+  font-weight:bold;
+}
+
+.nearest{
+  background:#ff6a00;
+}
+
 footer{
   margin-top:40px;
   padding:20px;
   font-size:14px;
-  color:#6b7280;
-  text-align:center;
+  color:#777;
 }
 
 </style>
@@ -81,13 +103,11 @@ footer{
 
 <body>
 
-<!-- اللوجو -->
 <img src="./logo.png" class="logo">
 
-<!-- كارد الموقع -->
 <div class="card" id="locationCard">
 
-<h3>حدد موقعك حتى نوجهك لأقرب فرع عليك 📍</h3>
+<h2>حدد موقعك حتى نوجهك لأقرب فرع عليك 📍</h2>
 
 <button onclick="findNearest()">
 📍 تحديد موقعي
@@ -95,128 +115,123 @@ footer{
 
 </div>
 
-<!-- النتائج -->
 <div id="result"></div>
 
 <script>
 
 const branches = [
 
-{name:"المكتب الرئيسي بغداد ", lat:33.54599575074458, lng:44.392682788903535},
-{name:"الباشا فرع البصرة", lat:30.4899722055262, lng:47.81148843130929},
-{name:"الباشا فرع بابل", lat:32.500383598402436, lng:44.418602002424485},
-{name:"الباشا فرع كربلاء", lat:32.60975649461941, lng:44.01063895824518}
+{name:"المكتب الرئيسي بغداد",lat:33.54599575074458,lng:44.392682788903535,isMain:true},
+
+{name:"الباشا فرع البصرة",lat:30.4899722055262,lng:47.81148843130929},
+
+{name:"الباشا فرع بابل",lat:32.500383598402436,lng:44.418602002424485},
+
+{name:"الباشا فرع كربلاء",lat:32.60975649461941,lng:44.01063895824518}
 
 ];
 
 function distance(a,b,c,d){
-  return Math.sqrt((a-c)**2 + (b-d)**2);
+ return Math.sqrt((a-c)**2 + (b-d)**2);
 }
 
 function openWaze(lat,lng){
 
-  window.location = `waze://?ll=${lat},${lng}&navigate=yes`;
+ window.location=`waze://?ll=${lat},${lng}&navigate=yes`;
 
-  setTimeout(function(){
+ setTimeout(function(){
 
-    window.location =
-    `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+   window.location=
+   `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 
-  },1500);
+ },1500);
 
 }
 
 function findNearest(){
 
-  if(!navigator.geolocation){
+ if(!navigator.geolocation){
+   alert("جهازك لا يدعم الموقع");
+   return;
+ }
 
-    alert("جهازك لا يدعم الموقع");
-    return;
+ navigator.geolocation.getCurrentPosition(function(pos){
 
-  }
+   let lat=pos.coords.latitude;
+   let lng=pos.coords.longitude;
 
-  navigator.geolocation.getCurrentPosition(function(pos){
+   let sorted=branches.map(function(branch){
 
-    let lat = pos.coords.latitude;
-    let lng = pos.coords.longitude;
+     return{
+       ...branch,
+       dist:(distance(lat,lng,branch.lat,branch.lng)*111).toFixed(1)
+     };
 
-    let sorted = branches.map(function(branch){
+   });
 
-      return {
-        ...branch,
-        dist:(distance(lat,lng,branch.lat,branch.lng)*111).toFixed(1)
-      };
+   sorted.sort(function(a,b){
+     return a.dist-b.dist;
+   });
 
-    });
+   let nearestBranch = sorted[0];
 
-    sorted.sort(function(a,b){
-      return a.dist - b.dist;
-    });
+   let mainOffice = sorted.find(x => x.isMain);
+   let otherBranches = sorted.filter(x => !x.isMain);
 
-    let nearestThree = sorted.slice(0,3);
+   let finalList = [mainOffice,...otherBranches];
 
-    let html = "";
+   let html="";
 
-    nearestThree.forEach(function(branch,index){
+   finalList.forEach(function(branch){
 
-      let badge = "";
+     let badges="";
 
-      if(index === 0){
+     if(branch.isMain){
+       badges += `<div class="badge">🏢 المكتب الرئيسي</div><br>`;
+     }
 
-        badge = `
-        <div style="
-        background:#ff6a00;
-        color:white;
-        padding:8px;
-        border-radius:10px;
-        margin-bottom:10px;
-        font-size:14px;
-        font-weight:bold;
-        ">
-        📍 اقرب فرع اليك
-        </div>
-        `;
+     if(branch.name === nearestBranch.name){
+       badges += `<div class="badge nearest">📍 أقرب فرع إليك</div>`;
+     }
 
-      }
+     html += `
 
-      html += `
+     <div class="card ${branch.isMain ? 'main-office' : ''}">
 
-      <div class="card">
+       ${badges}
 
-      ${badge}
+       <h2>${branch.name}</h2>
 
-      <h2>${branch.name}</h2>
+       <p>
+       📍 يبعد عنك ${branch.dist} كم
+       </p>
 
-      <p style="opacity:0.8;">
-      📍 يبعد عنك ${branch.dist} كم
-      </p>
+       <a class="btn maps"
+       target="_blank"
+       href="https://www.google.com/maps/dir/?api=1&destination=${branch.lat},${branch.lng}">
+       🚗 Google Maps
+       </a>
 
-      <a class="btn maps" target="_blank"
-      href="https://www.google.com/maps/dir/?api=1&destination=${branch.lat},${branch.lng}">
-      🚗 Google Maps
-      </a>
+       <a class="btn waze"
+       onclick="openWaze(${branch.lat},${branch.lng})">
+       🧭 فتح Waze
+       </a>
 
-      <a class="btn waze"
-      onclick="openWaze(${branch.lat},${branch.lng})">
-      🧭 فتح Waze
-      </a>
+     </div>
 
-      </div>
+     `;
 
-      `;
+   });
 
-    });
+   document.getElementById("result").innerHTML=html;
 
-    document.getElementById("result").innerHTML = html;
+   document.getElementById("locationCard").style.display="none";
 
-    /* اخفاء كارد الموقع */
-    document.getElementById("locationCard").style.display = "none";
+ },function(){
 
-  }, function(){
+   alert("فعل الموقع من المتصفح");
 
-    alert("فعل الموقع من المتصفح");
-
-  });
+ });
 
 }
 
