@@ -119,6 +119,9 @@ margin-top:6px;
 font-size:15px;
 }
 
+.maps{
+background:#1f3b73;
+}
 
 .waze{
 background:#33ccff;
@@ -229,7 +232,12 @@ function openWaze(lat,lng){
 
 window.location=`waze://?ll=${lat},${lng}&navigate=yes`;
 
-,1500);
+setTimeout(function(){
+
+window.location=
+`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+
+},1500);
 
 }
 
