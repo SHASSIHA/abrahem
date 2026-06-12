@@ -255,9 +255,7 @@ branch.lng
 });
 
 sorted.sort(function(a,b){
-
 return a.dist-b.dist;
-
 });
 
 let mainOffice=sorted.find(x=>x.isMain);
@@ -266,7 +264,7 @@ let otherBranches=sorted
 .filter(x=>!x.isMain)
 .sort((a,b)=>a.dist-b.dist);
 
-let nearestBranch=otherBranches[0];
+let nearestBranch=sorted[0];
   
 let finalList=[mainOffice,...otherBranches];
 let html="";
